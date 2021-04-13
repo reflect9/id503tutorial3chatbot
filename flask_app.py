@@ -1,7 +1,9 @@
 # My first AI-infused web app
 # Author: Tak Yeon Lee
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from PlayTennisClassifier import createClassifier
+import json
 
 app = Flask(__name__)
 
@@ -16,3 +18,14 @@ def about_page():
 @app.route('/play')
 def play_page():
     return render_template("play.html")
+
+@app.route('/classify')
+def classifyAPI():
+    featuresToPredictString = request.args.get("features")
+    featuresToPredict = json.loads(featuresToPredictString)
+    # print(featuresToPredict)
+    # return "Feature Length: " + str(len(featuresToPredict))
+
+    classifier = createClassifier()
+    predictionResult = classifier.predict(featuresToPredict)
+    return "Feature: "+str(featuresToPredict) + "\nPrediction: " + str(list(predictionResult))
