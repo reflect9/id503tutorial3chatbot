@@ -1,29 +1,25 @@
-# Load Libraries
-import numpy as np
-import pandas as pd
-from sklearn import metrics, preprocessing
-from sklearn.model_selection import train_test_split
+import numpy as np  # library for data analysis
+import pandas as pd  # library for data analysis
+import os   # file and directory structure
+from sklearn import metrics, preprocessing  # Python's most popular ML library
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-import os
 
-def createClassifier():
-    # Let's train a decision tree
-    current_path = os.path.dirname(os.path.abspath(__file__))
-    df = pd.read_csv(current_path+"/play_tennis.csv")
-    string_to_int = preprocessing.LabelEncoder()
-    df = df.apply(string_to_int.fit_transform)
+def createClassifier(feature2int):
+    # Step 1. Loading a dataset(play_tennis.csv) for training model
+    current_path = os.path.dirname(os.path.abspath(__file__)) # absolute path to the current file
+    df = pd.read_csv(current_path + "/play_tennis.csv")  # df: dataframe
 
-    feature_cols = ['outlook', 'temp', 'humidity', 'wind']
-    X = df[feature_cols]
-    y = df.play
+    # Step 2. Cleaning dataset > Preparing X(features), and y(labels)
+    df_int = df.applymap(feature2int)
+    print("Converted Play Tennis")
+    print(df_int)
 
-    classifier = DecisionTreeClassifier(criterion="entropy", random_state=100)
-    classifier.fit(X,y)
+    feature_cols = ["outlook", "temp", "humidity", "wind"]
+    X = df_int[feature_cols]  # X is features. Extracted from df, containing columns that are in feature_cols
+    y = df_int.play  # y is the label
+
+    # Step 3. Training
+    classifier = DecisionTreeClassifier(criterion="entropy")
+    classifier.fit(X,y)  # training the model using given X and y
+
     return classifier
-
-# Let's predict a new feature
-# x_new = [[2,1,1,0]]
-# print (classifier.predict(x_new))
-
-
