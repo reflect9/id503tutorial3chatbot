@@ -1,7 +1,7 @@
 def detect_intent_texts(project_id, session_id, texts, language_code):
     from google.cloud import dialogflow
     import os
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/reflect9/mysite/firstbot-nbnd-0ecb8e859ec7.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/reflect9/mysite/firstbot-iidr-e3bf3507f860.json"
 
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
@@ -19,13 +19,3 @@ def detect_intent_texts(project_id, session_id, texts, language_code):
             "answer":  response.query_result.fulfillment_text
         })
     return responses
-
-
-
-
-
-
-
-
-
-

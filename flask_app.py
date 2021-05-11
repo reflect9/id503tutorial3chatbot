@@ -3,7 +3,7 @@
 
 from flask import Flask, render_template, request
 from PlayTennisClassifier import createClassifier
-import json
+import json, requests
 
 app = Flask(__name__)
 features = {
@@ -54,50 +54,49 @@ def classify():
 
     return json.dumps(predictionResult.tolist())
 
-@app.route('/chatbot')
-def chatbot():
-    return render_template("chatbot.html")
-
-def call_openweather_api(city):
-    import requests
-    openweather_api_key= "069839f84604112570cb8cb4a20b9048"
-    openweather_url = "http://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+openweather_api_key
-    response = requests.get(openweather_url).json()
-    if response.get('cod') != 200:
-        message = response.get('message', '')
-        return f'Could not get the current weather at {city}. Error message = {message}'
-
-    current_weather = response['weather'][0]['description']
-    if current_weather:
-        return f'Current weather at {city} is {current_weather}.'
-    else:
-        return f'Error getting weather for {city}'
-
-@app.route('/webhook_weather', methods=['POST'])
+@app.route('/webhook_weather',methods=["POST"])
 def webhook_weather():
-    data = request.get_json()
-    location_city = data["queryResult"]["parameters"]["geo-city"]
-    weather = call_openweather_api(location_city)
+    dialogflowQuery = request.get_json()
+    city = dialogflowQuery["queryResult"]["parameters"]["geo-city"]
+    print(city)
+    OPENWEATHER_API_KEY = "069839f84604112570cb8cb4a20b9048"
+    url = "http://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+OPENWEATHER_API_KEY
+    print(url)
+    response = requests.get(url).json()
+    print(response)
+    weather = response["weather"][0]["description"]
     return {
-        "fulfillmentText": weather,
+        "fulfillmentText": "Current weather at " + city + " is " + weather,
         "fulfillmentMessages": [
             {
-            "text": {
-                "text": [
-                    weather
+                "text": {
+                    "text": [
+                        "Current weather at " + city + " is " + weather
                     ]
+
                 }
             }
         ]
     }
 
-@app.route('/dialogflow', methods=['POST'])
+@app.route('/chatbot')
+def chatbot():
+    return render_template("chatbot.html")
+
+@app.route('/dialogflow', methods=["POST"])
 def dialogflow():
     from DialogflowIntentDetector import detect_intent_texts
-
     data = request.get_json()
     queryText = data["queryText"]
-    session_id = "123456789";
-    project_id = "firstbot-nbnd";
-    responses = detect_intent_texts(project_id, session_id, [queryText], "en")
+    session_id = "123456789"
+    project_id = "firstbot-iidr"
+    language = "en"
+    responses = detect_intent_texts(project_id, session_id, [queryText], language)
     return json.dumps(responses)
+
+
+
+
+
+
+
